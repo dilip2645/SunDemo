@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RightalignResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Aligncheck</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.myapp.web.rest</a> &gt; <span class="el_source">RightalignResource.java</span></div><h1>RightalignResource.java</h1><pre class="source lang-java linenums">package com.mycompany.myapp.web.rest;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import com.mycompany.myapp.common.ReportGenerator;
+import com.mycompany.myapp.common.FileOperation;
+import com.mycompany.myapp.common.ReportFileType;
+import org.springframework.core.io.InputStreamResource;
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.mycompany.myapp.domain.Rightalign;
+import com.mycompany.myapp.service.RightalignService;
+import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
+import com.mycompany.myapp.service.dto.RightalignCriteria;
+import com.mycompany.myapp.service.RightalignQueryService;
+
+import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
+import io.github.jhipster.web.util.ResponseUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * REST controller for managing {@link com.mycompany.myapp.domain.Rightalign}.
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class RightalignResource {
+
+<span class="nc" id="L54">    private final Logger log = LoggerFactory.getLogger(RightalignResource.class);</span>
+
+    private static final String ENTITY_NAME = &quot;rightalign&quot;;
+
+    @Value(&quot;${jhipster.clientApp.name}&quot;)
+    private String applicationName;
+
+    private final RightalignService rightalignService;
+
+    private final RightalignQueryService rightalignQueryService;
+
+    private final ReportGenerator reportGenerator;
+
+<span class="nc" id="L67">    public RightalignResource(RightalignService rightalignService, RightalignQueryService rightalignQueryService, ReportGenerator reportGenerator) {</span>
+<span class="nc" id="L68">        this.rightalignService = rightalignService;</span>
+<span class="nc" id="L69">        this.rightalignQueryService = rightalignQueryService;</span>
+<span class="nc" id="L70">        this.reportGenerator = reportGenerator;</span>
+<span class="nc" id="L71">    }</span>
+
+    /**
+     * {@code POST  /rightaligns} : Create a new rightalign.
+     *
+     * @param rightalign the rightalign to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new rightalign, or with status {@code 400 (Bad Request)} if the rightalign has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping(&quot;/rightaligns&quot;)
+    public ResponseEntity&lt;Rightalign&gt; createRightalign(@RequestBody Rightalign rightalign) throws URISyntaxException {
+<span class="nc" id="L82">        log.debug(&quot;REST request to save Rightalign : {}&quot;, rightalign);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (rightalign.getId() != null) {</span>
+<span class="nc" id="L84">            throw new BadRequestAlertException(&quot;A new rightalign cannot already have an ID&quot;, ENTITY_NAME, &quot;idexists&quot;);</span>
+        }
+<span class="nc" id="L86">        Rightalign result = rightalignService.save(rightalign);</span>
+<span class="nc" id="L87">        return ResponseEntity.created(new URI(&quot;/api/rightaligns/&quot; + result.getId()))</span>
+<span class="nc" id="L88">            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))</span>
+<span class="nc" id="L89">            .body(result);</span>
+    }
+
+    /**
+     * {@code PUT  /rightaligns} : Updates an existing rightalign.
+     *
+     * @param rightalign the rightalign to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated rightalign,
+     * or with status {@code 400 (Bad Request)} if the rightalign is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the rightalign couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PutMapping(&quot;/rightaligns&quot;)
+    public ResponseEntity&lt;Rightalign&gt; updateRightalign(@RequestBody Rightalign rightalign) throws URISyntaxException {
+<span class="nc" id="L103">        log.debug(&quot;REST request to update Rightalign : {}&quot;, rightalign);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (rightalign.getId() == null) {</span>
+<span class="nc" id="L105">            throw new BadRequestAlertException(&quot;Invalid id&quot;, ENTITY_NAME, &quot;idnull&quot;);</span>
+        }
+<span class="nc" id="L107">        Rightalign result = rightalignService.save(rightalign);</span>
+<span class="nc" id="L108">        return ResponseEntity.ok()</span>
+<span class="nc" id="L109">            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, rightalign.getId().toString()))</span>
+<span class="nc" id="L110">            .body(result);</span>
+    }
+
+    /**
+     * {@code GET  /rightaligns} : get all the rightaligns.
+     *
+
+     * @param pageable the pagination information.
+
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of rightaligns in body.
+     */
+    @GetMapping(&quot;/rightaligns&quot;)
+    public ResponseEntity&lt;List&lt;Rightalign&gt;&gt; getAllRightaligns(RightalignCriteria criteria, Pageable pageable,@RequestParam(value = &quot;exportType&quot;, required = false) String exportType) {
+<span class="nc" id="L124">        log.debug(&quot;REST request to get Rightaligns by criteria: {}&quot;, criteria);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if(exportType==null) {</span>
+        PageRequest pageRequest;
+<span class="nc" id="L127">        Sort.Order order = new Sort.Order(pageable.getSort().iterator().next().getDirection(),pageable.getSort().iterator().next().getProperty()).ignoreCase();</span>
+<span class="nc" id="L128">        pageRequest = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), new Sort(order));</span>
+<span class="nc" id="L129">        Page&lt;Rightalign&gt; page = rightalignQueryService.findByCriteria(criteria, pageable);</span>
+<span class="nc" id="L130">        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);</span>
+<span class="nc" id="L131">        return ResponseEntity.ok().headers(headers).body(page.getContent());</span>
+        }
+        else{
+           
+<span class="nc" id="L135">        List&lt;String&gt; excludedHeader = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L136">			excludedHeader.add(&quot;id&quot;);</span>
+<span class="nc" id="L137">			Date date = Calendar.getInstance().getTime();</span>
+<span class="nc" id="L138">			DateFormat dateFormat = new SimpleDateFormat(&quot;hhmmssSSS&quot;);</span>
+<span class="nc" id="L139">			String strDate = dateFormat.format(date);</span>
+<span class="nc" id="L140">			String fileName = &quot;Demo_&quot;+strDate;</span>
+
+<span class="nc" id="L142">			List&lt;Rightalign&gt; rightalignList = rightalignQueryService.findByCriteria(criteria);</span>
+
+<span class="nc" id="L144">			ReportFileType  report = reportGenerator.generateListingReport(</span>
+                rightalignList,
+					exportType,
+<span class="nc" id="L147">					getRightalignReportHeader(),</span>
+					&quot;Rightalign&quot;,
+					&quot;Rightalign&quot;,
+					&quot;Rightalign Report&quot;,
+					excludedHeader,
+					null);           
+<span class="nc bnc" id="L153" title="All 2 branches missed.">			if(report.getReportFile().exists()){</span>
+				FileOperation inputStream;
+				try {
+<span class="nc" id="L156">					inputStream = new FileOperation(report.getReportFile());</span>
+<span class="nc" id="L157">					return new ResponseEntity(new InputStreamResource(inputStream), report.getHttpHeader(),</span>
+							HttpStatus.OK);
+<span class="nc" id="L159">				} catch (FileNotFoundException e) {</span>
+					// TODO Auto-generated catch block
+<span class="nc" id="L161">					e.printStackTrace();</span>
+				}
+			} 
+        }
+<span class="nc" id="L165">        return null;</span>
+    }
+
+    /**
+    * {@code GET  /rightaligns/count} : count all the rightaligns.
+    *
+    * @param criteria the criteria which the requested entities should match.
+    * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+    */
+    @GetMapping(&quot;/rightaligns/count&quot;)
+    public ResponseEntity&lt;Long&gt; countRightaligns(RightalignCriteria criteria) {
+<span class="nc" id="L176">        log.debug(&quot;REST request to count Rightaligns by criteria: {}&quot;, criteria);</span>
+<span class="nc" id="L177">        return ResponseEntity.ok().body(rightalignQueryService.countByCriteria(criteria));</span>
+    }
+
+    /**
+     * {@code GET  /rightaligns/:id} : get the &quot;id&quot; rightalign.
+     *
+     * @param id the id of the rightalign to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the rightalign, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping(&quot;/rightaligns/{id}&quot;)
+    public ResponseEntity&lt;Rightalign&gt; getRightalign(@PathVariable Long id) {
+<span class="nc" id="L188">        log.debug(&quot;REST request to get Rightalign : {}&quot;, id);</span>
+<span class="nc" id="L189">        Optional&lt;Rightalign&gt; rightalign = rightalignService.findOne(id);</span>
+<span class="nc" id="L190">        return ResponseUtil.wrapOrNotFound(rightalign);</span>
+    }
+
+    /**
+     * {@code DELETE  /rightaligns/:id} : delete the &quot;id&quot; rightalign.
+     *
+     * @param id the id of the rightalign to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping(&quot;/rightaligns/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteRightalign(@PathVariable Long id) {
+<span class="nc" id="L201">        log.debug(&quot;REST request to delete Rightalign : {}&quot;, id);</span>
+<span class="nc" id="L202">        rightalignService.delete(id);</span>
+<span class="nc" id="L203">        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();</span>
+    }
+
+    public static Map&lt;String, String&gt; getRightalignReportHeader() {
+<span class="nc" id="L207">        Map&lt;String, String&gt; reportHeaders = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L208">            reportHeaders.put(&quot;sdf&quot;,&quot;Sdf&quot;);</span>
+<span class="nc" id="L209">        return reportHeaders;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
